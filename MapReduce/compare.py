@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.lib.npyio import load
 
 
 def compare(referencesPaths, toComparePath):
@@ -11,11 +10,12 @@ def compare(referencesPaths, toComparePath):
         total = sum(sum(ref))
         sub = sum(sum(abs(ref - toCompare)))
         diff = total - sub
-        diffs.append(s)
+        diffs.append(diff)
     
-    high = max(diff)
+    high = max(diffs)
     i = diffs.index(high)
     print(referencesPaths[i],diffs)
+    return referencesPaths[i]
 
 
 def loadMatrix(fullpath):

@@ -48,7 +48,7 @@ def reduce(lines):
 def saveMatrix(matrix, name, norm=False):
     if norm:
         matrix = zScore(matrix)
-    with open(f'temp/{name}_matrix.npy', 'wb') as f:
+    with open(f'{name}_matrix.npy', 'wb') as f:
         np.save(f, matrix)
 
 
@@ -71,4 +71,4 @@ if __name__ == "__main__":
         name = 'temp'
 
     print(name)
-    saveMatrix(reduce(sys.stdin), name, norm=False)       
+    saveMatrix(reduce(sys.stdin), name, norm=True)       
