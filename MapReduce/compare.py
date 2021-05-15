@@ -5,16 +5,17 @@ from numpy.lib.npyio import load
 def compare(referencesPaths, toComparePath):
     toCompare = loadMatrix(toComparePath)
 
-    diff = []
+    diffs = []
     for refPath in referencesPaths:
         ref = loadMatrix(refPath)
-        s = sum(sum(ref - toCompare))
-        print(s)
-        diff.append(s)
+        total = sum(sum(ref))
+        sub = sum(sum(abs(ref - toCompare)))
+        diff = total - sub
+        diffs.append(s)
     
-    low = min(diff)
-    i = diff.index(low)
-    print(referencesPaths[i],diff)
+    high = max(diff)
+    i = diffs.index(high)
+    print(referencesPaths[i],diffs)
 
 
 def loadMatrix(fullpath):
