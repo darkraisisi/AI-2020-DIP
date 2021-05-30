@@ -3,6 +3,7 @@ class Network():
         self.queue = []
         self.P = []
         self.A = []
+        self.L = []
         self.currentTick = 0 # Current time, could be actual time or fictional time.
         self.proposals = 0
     

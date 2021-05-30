@@ -22,6 +22,7 @@ class Proposer(Computer):
         self.amountRejected = 0
         self.proposedValue = None
         self.value = None
+        self.state = None
 
     def recieveMessage(self, m: Message):
         # Computer komt in actie en voert bericht uit.
@@ -48,6 +49,10 @@ class Proposer(Computer):
     
 
     def promise(self, m:Message):
+        if self.state != 'promise':
+            self.state = 'promise'
+            self.amountAccepted = 0
+            
         if m.id == self.promisedId:
             self.amountAccepted += 1
             if m.value:
@@ -57,10 +62,13 @@ class Proposer(Computer):
                     newM = Message(self, acc, 'ACCEPT', self.prior, self.promisedId)
                     self.network.queueMessage(newM)
                 self.amountAccepted = 0
-                self.consensus(m)
 
 
     def accepted(self, m:Message):
+        if self.state != 'accepted':
+            self.state = 'accepted'
+            self.amountAccepted = 0
+
         self.network.printMsg(self.network.currentTick, str(m))
         # print(f'{m.id}, {self.promisedId}')
         if m.id == self.promisedId:
@@ -80,7 +88,13 @@ class Proposer(Computer):
 
 
     def consensus(self, m):
+        self.amountAccepted = 0
+        self.amountRejected = 0
         self.value = self.prior
+        for learner in self.network.L:
+            newM = Message(self, learner, 'SUCCES', self.value, self.promisedId)
+            self.network.queueMessage(newM)
+                
 
     
     def __str__(self):
@@ -96,6 +110,8 @@ class Acceptor(Computer):
             self.accept(m)
         elif m.type == 'PREPARE':
             self.prepare(m)
+        elif m.type == 'RESET':
+            self.reset(m)
 
     
     def accept(self, m):
@@ -125,6 +141,42 @@ class Acceptor(Computer):
 
         self.network.queueMessage(newM)
 
+    
+    def reset(self, m):
+        self.network.printMsg(self.network.currentTick, str(m))
+        if self.promisedId <= m.id:
+            self.prior = None
+
 
     def __str__(self):
         return f'A{self.id+1}'
+
+
+class Learner(Computer):
+    def __init__(self, _id, network, func):
+        self.value = None
+        self.func = func
+        self.amountLearnd = 0
+        super().__init__(_id, network)
+
+    
+    def recieveMessage(self, m: Message):
+        if m.type == 'SUCCES':
+            self.succes(m)
+        else:
+            print('THIS MESSAGE TYPE IS NOT KNOWN IN LEARNER')
+    
+
+    def succes(self, m):
+        self.network.printMsg(self.network.currentTick, str(m))
+        self.amountLearnd += 1
+        for acc in self.network.A:
+            newM = Message(self, acc, 'RESET', None, m.id)
+            self.network.queueMessage(newM)
+        
+        print(f'{self} PREDICT n={self.amountLearnd}')
+
+        self.func(m.value)
+
+    def __str__(self):
+        return f'L{self.id+1}'

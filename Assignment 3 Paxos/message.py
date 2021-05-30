@@ -11,9 +11,9 @@ class Message():
         self.priorId = priorId
 
     def __str__(self):
-        if self.type in ['PROPOSE', 'PREPARE', 'ACCEPT', 'ACCEPTED']:
+        if self.type in ['PROPOSE', 'PREPARE', 'ACCEPT', 'ACCEPTED', 'SUCCES']:
             return f'{self.src if self.src else "  "} -> {self.dst} {self.type} {"n="+str(self.id)+" " if self.id else ""}{"v="+self.value if self.value else ""}'
         elif self.type == 'PROMISE':
-            return f'{self.src if self.src else "  "} -> {self.dst} {self.type} {"n="+str(self.id)+" " if self.id else ""} (Prior: {"n="+str(self.priorId)+" " if self.value else "None"}{"v="+self.value if self.value else ""})'
+            return f'{self.src if self.src else "  "} -> {self.dst} {self.type} {"n="+str(self.id) if self.id else ""} (Prior: {"n="+str(self.priorId)+" " if self.value else "None"}{"v="+self.value if self.value else ""})'
         else:
             return f'{self.src if self.src else "  "} -> {self.dst} {self.type} {"n="+str(self.id)+" " if self.id else ""}'

@@ -1,19 +1,21 @@
 from typing import List
-from computer import Acceptor, Proposer
+from computer import Acceptor, Proposer, Learner
 from message import Message
 from network import Network
+from matrix import Matrix
 
 class Simulation():
     def __init__(self, fileName: str) -> None:
         with open(fileName, 'r') as file:
             events = file.readlines()
             events = list(map(lambda x: x.rstrip('\n').split(' ', 3), events))
-            nP, nA, tmax = events[0]
+            nP, nA, nL, tmax = events[0]
             self.events = events[1:]
             print(f'Input:\n{events}\n')
             self.tmax = int(tmax)
             self.computers = []
             self.network = Network()
+            self.matrix = Matrix()
 
             for i in range(int(nP)):
                 self.network.P.append(Proposer(i, self.network))
@@ -21,6 +23,14 @@ class Simulation():
             for i in range(int(nA)):
                 self.network.A.append(Acceptor(i, self.network))
 
+            for i in range(int(nL)):
+                self.network.L.append(Learner(i, self.network, self.matrix.addLetters))
+            
+            print(int(nL))
+            if int(nL) > 0:
+                self.endFunc = self.matrix.saveAll
+            else:
+                self.endFunc = None
 
     def simulation(self):
         """
@@ -36,10 +46,11 @@ class Simulation():
         
         for tick in range(self.tmax):
             self.network.currentTick = tick
-            if len(self.network.queue) == 0 and len(self.events) == 0:
+            if len(self.network.queue) == 0 and len(self.events) == 1:
                 # If there are no messages or events the simulation is done.
-                print('END')
-                return
+                if self.endFunc != None:
+                    self.endFunc()
+                break
             
             # Verwerk event e (als dat tenminste bestaat)
             if int(self.events[0][0]) == tick:
@@ -75,6 +86,7 @@ class Simulation():
             else:
                 self.getMessage()
 
+        print('')
         for proposer in self.network.P:
             if proposer.value is not None:
                 print(
