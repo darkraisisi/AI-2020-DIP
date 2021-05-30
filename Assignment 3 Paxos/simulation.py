@@ -11,7 +11,6 @@ class Simulation():
             events = list(map(lambda x: x.rstrip('\n').split(' ', 3), events))
             nP, nA, nL, tmax = events[0]
             self.events = events[1:]
-            print(f'Input:\n{events}\n')
             self.tmax = int(tmax)
             self.computers = []
             self.network = Network()
@@ -26,7 +25,6 @@ class Simulation():
             for i in range(int(nL)):
                 self.network.L.append(Learner(i, self.network, self.matrix.addLetters))
             
-            print(int(nL))
             if int(nL) > 0:
                 self.endFunc = self.matrix.saveAll
             else:
@@ -56,7 +54,6 @@ class Simulation():
             if int(self.events[0][0]) == tick:
                 e = self.events[0]
                 (t, msgType, msgR, msgV) = e
-                # print(f'Handle event:{e}')
                 del self.events[0]
 
                 if msgType == 'FAIL':
